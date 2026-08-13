@@ -16,18 +16,10 @@ from app.schemas import (
 router = APIRouter()
 
 
-# ============================================================
-# PATIENT APIs
-# ============================================================
+# Patients
 
-
-@router.get(
-    "/patients",
-    response_model=list[PatientResponse],
-)
-def get_patients(
-    db: Session = Depends(get_db),
-):
+@router.get("/patients", response_model=list[PatientResponse])
+def get_patients(db: Session = Depends(get_db)):
     return db.query(Patient).all()
 
 
@@ -40,22 +32,15 @@ def create_patient(
     patient_data: PatientCreate,
     db: Session = Depends(get_db),
 ):
-    existing_patient = (
-        db.query(Patient)
-        .filter(Patient.email == patient_data.email)
-        .first()
-    )
-
-    if existing_patient:
+    if db.query(Patient).filter(
+        Patient.email == patient_data.email
+    ).first():
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Patient with this email already exists",
         )
 
-    patient = Patient(
-        **patient_data.model_dump()
-    )
-
+    patient = Patient(**patient_data.model_dump())
     db.add(patient)
     db.commit()
     db.refresh(patient)
@@ -63,14 +48,8 @@ def create_patient(
     return patient
 
 
-@router.get(
-    "/patients/{patient_id}",
-    response_model=PatientResponse,
-)
-def get_patient(
-    patient_id: int,
-    db: Session = Depends(get_db),
-):
+@router.get("/patients/{patient_id}", response_model=PatientResponse)
+def get_patient(patient_id: int, db: Session = Depends(get_db)):
     patient = db.get(Patient, patient_id)
 
     if patient is None:
@@ -82,18 +61,10 @@ def get_patient(
     return patient
 
 
-# ============================================================
-# DOCTOR APIs
-# ============================================================
+# Doctors
 
-
-@router.get(
-    "/doctors",
-    response_model=list[DoctorResponse],
-)
-def get_doctors(
-    db: Session = Depends(get_db),
-):
+@router.get("/doctors", response_model=list[DoctorResponse])
+def get_doctors(db: Session = Depends(get_db)):
     return db.query(Doctor).all()
 
 
@@ -106,10 +77,7 @@ def create_doctor(
     doctor_data: DoctorCreate,
     db: Session = Depends(get_db),
 ):
-    doctor = Doctor(
-        **doctor_data.model_dump()
-    )
-
+    doctor = Doctor(**doctor_data.model_dump())
     db.add(doctor)
     db.commit()
     db.refresh(doctor)
@@ -117,14 +85,8 @@ def create_doctor(
     return doctor
 
 
-@router.get(
-    "/doctors/{doctor_id}",
-    response_model=DoctorResponse,
-)
-def get_doctor(
-    doctor_id: int,
-    db: Session = Depends(get_db),
-):
+@router.get("/doctors/{doctor_id}", response_model=DoctorResponse)
+def get_doctor(doctor_id: int, db: Session = Depends(get_db)):
     doctor = db.get(Doctor, doctor_id)
 
     if doctor is None:
@@ -136,18 +98,10 @@ def get_doctor(
     return doctor
 
 
-# ============================================================
-# APPOINTMENT APIs
-# ============================================================
+# Appointments
 
-
-@router.get(
-    "/appointments",
-    response_model=list[AppointmentResponse],
-)
-def get_appointments(
-    db: Session = Depends(get_db),
-):
+@router.get("/appointments", response_model=list[AppointmentResponse])
+def get_appointments(db: Session = Depends(get_db)):
     return db.query(Appointment).all()
 
 
@@ -160,79 +114,33 @@ def create_appointment(
     appointment_data: AppointmentCreate,
     db: Session = Depends(get_db),
 ):
-    # --------------------------------------------------------
-    # Check that patient exists
-    # --------------------------------------------------------
-
-    patient = db.get(
-        Patient,
-        appointment_data.patient_id,
-    )
-
-    if patient is None:
+    if db.get(Patient, appointment_data.patient_id) is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Patient not found",
         )
 
-    # --------------------------------------------------------
-    # Check that doctor exists
-    # --------------------------------------------------------
-
-    doctor = db.get(
-        Doctor,
-        appointment_data.doctor_id,
-    )
-
-    if doctor is None:
+    if db.get(Doctor, appointment_data.doctor_id) is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Doctor not found",
         )
 
-    # --------------------------------------------------------
-    # Check appointment overlap
-    #
-    # Existing appointment:
-    # existing_start < new_end
-    # AND
-    # existing_end > new_start
-    # --------------------------------------------------------
-
-    overlapping_appointment = (
-        db.query(Appointment)
-        .filter(
-            and_(
-                Appointment.doctor_id
-                == appointment_data.doctor_id,
-
-                Appointment.appointment_start
-                < appointment_data.appointment_end,
-
-                Appointment.appointment_end
-                > appointment_data.appointment_start,
-            )
+    overlap = db.query(Appointment).filter(
+        and_(
+            Appointment.doctor_id == appointment_data.doctor_id,
+            Appointment.appointment_start < appointment_data.appointment_end,
+            Appointment.appointment_end > appointment_data.appointment_start,
         )
-        .first()
-    )
+    ).first()
 
-    if overlapping_appointment:
+    if overlap:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=(
-                "Doctor already has an appointment "
-                "during this time"
-            ),
+            detail="Doctor already has an appointment during this time",
         )
 
-    # --------------------------------------------------------
-    # Create appointment
-    # --------------------------------------------------------
-
-    appointment = Appointment(
-        **appointment_data.model_dump()
-    )
-
+    appointment = Appointment(**appointment_data.model_dump())
     db.add(appointment)
     db.commit()
     db.refresh(appointment)
@@ -244,14 +152,8 @@ def create_appointment(
     "/appointments/{appointment_id}",
     response_model=AppointmentResponse,
 )
-def get_appointment(
-    appointment_id: int,
-    db: Session = Depends(get_db),
-):
-    appointment = db.get(
-        Appointment,
-        appointment_id,
-    )
+def get_appointment(appointment_id: int, db: Session = Depends(get_db)):
+    appointment = db.get(Appointment, appointment_id)
 
     if appointment is None:
         raise HTTPException(
