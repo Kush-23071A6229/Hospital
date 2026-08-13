@@ -1,0 +1,33 @@
+[project]
+name = "hospital-appointment-api"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Kush Modi",email = "23071A6229@vnrvjiet.in"}
+]
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi (>=0.141.1,<0.142.0)",
+    "uvicorn (>=0.52.2,<0.53.0)",
+    "sqlalchemy (>=2.0.52,<3.0.0)",
+    "alembic (>=1.19.1,<2.0.0)",
+    "pydantic (>=2.13.4,<3.0.0)",
+    "email-validator (>=2.3.0,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.1.1,<10.0.0)",
+    "pytest-cov (>=7.1.0,<8.0.0)",
+    "httpx (>=0.28.1,<0.29.0)",
+    "ruff (>=0.16.2,<0.17.0)",
+    "bandit (>=1.9.4,<2.0.0)"
+]
+
+[tool.ruff]
+lint.ignore = ["B008"]
