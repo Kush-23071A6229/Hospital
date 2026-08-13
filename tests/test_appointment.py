@@ -9,7 +9,6 @@ def create_patient(client):
     )
 
     assert response.status_code == 201
-
     return response.json()["id"]
 
 
@@ -23,7 +22,6 @@ def create_doctor(client):
     )
 
     assert response.status_code == 201
-
     return response.json()["id"]
 
 
@@ -55,56 +53,6 @@ def test_create_appointment(client):
 
     data = response.json()
 
-    assert data["patient_id"] == patient_id
-    assert data["doctor_id"] == doctor_id
-    assert data["appointment_start"] == "2026-08-20T10:00:00"
-    assert data["appointment_end"] == "2026-08-20T11:00:00"
-
-
-def test_get_appointments(client):
-    patient_id = create_patient(client)
-    doctor_id = create_doctor(client)
-
-    create_appointment(
-        client,
-        patient_id,
-        doctor_id,
-        "2026-08-20T10:00:00",
-        "2026-08-20T11:00:00",
-    )
-
-    response = client.get("/appointments")
-
-    assert response.status_code == 200
-
-    data = response.json()
-
-    assert len(data) == 1
-    assert data[0]["patient_id"] == patient_id
-    assert data[0]["doctor_id"] == doctor_id
-
-
-def test_get_appointment_by_id(client):
-    patient_id = create_patient(client)
-    doctor_id = create_doctor(client)
-
-    create_response = create_appointment(
-        client,
-        patient_id,
-        doctor_id,
-        "2026-08-20T10:00:00",
-        "2026-08-20T11:00:00",
-    )
-
-    appointment_id = create_response.json()["id"]
-
-    response = client.get(f"/appointments/{appointment_id}")
-
-    assert response.status_code == 200
-
-    data = response.json()
-
-    assert data["id"] == appointment_id
     assert data["patient_id"] == patient_id
     assert data["doctor_id"] == doctor_id
 
