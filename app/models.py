@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, String
@@ -30,7 +32,7 @@ class Patient(Base):
         nullable=False,
     )
 
-    appointments: Mapped[list[Appointment]] = relationship(
+    appointments: Mapped[list["Appointment"]] = relationship(
         "Appointment",
         back_populates="patient",
     )
