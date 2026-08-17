@@ -15,9 +15,7 @@ class PatientResponse(BaseModel):
     email: EmailStr
     phone: str
 
-    model_config = {
-        "from_attributes": True
-    }
+    model_config = {"from_attributes": True}
 
 
 class DoctorCreate(BaseModel):
@@ -30,9 +28,7 @@ class DoctorResponse(BaseModel):
     name: str
     specialization: str
 
-    model_config = {
-        "from_attributes": True
-    }
+    model_config = {"from_attributes": True}
 
 
 class AppointmentCreate(BaseModel):
@@ -44,9 +40,7 @@ class AppointmentCreate(BaseModel):
     @model_validator(mode="after")
     def validate_time_range(self):
         if self.appointment_end <= self.appointment_start:
-            raise ValueError(
-                "appointment_end must be after appointment_start"
-            )
+            raise ValueError("appointment_end must be after appointment_start")
 
         return self
 
@@ -58,6 +52,4 @@ class AppointmentResponse(BaseModel):
     appointment_start: datetime
     appointment_end: datetime
 
-    model_config = {
-        "from_attributes": True
-    }
+    model_config = {"from_attributes": True}

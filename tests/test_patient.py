@@ -2,8 +2,8 @@ def test_create_patient(client):
     response = client.post(
         "/patients",
         json={
-            "name": "John Doe",
-            "email": "john@example.com",
+            "name": "Kush",
+            "email": "kush@example.com",
             "phone": "9876543210",
         },
     )
@@ -13,8 +13,8 @@ def test_create_patient(client):
     data = response.json()
 
     assert data["id"] == 1
-    assert data["name"] == "John Doe"
-    assert data["email"] == "john@example.com"
+    assert data["name"] == "Kush"
+    assert data["email"] == "kush@example.com"
     assert data["phone"] == "9876543210"
 
 
@@ -22,8 +22,8 @@ def test_get_patients(client):
     client.post(
         "/patients",
         json={
-            "name": "John Doe",
-            "email": "john@example.com",
+            "name": "Kush",
+            "email": "kush@example.com",
             "phone": "9876543210",
         },
     )
@@ -35,31 +35,29 @@ def test_get_patients(client):
     data = response.json()
 
     assert len(data) == 1
-    assert data[0]["name"] == "John Doe"
+    assert data[0]["name"] == "Kush"
 
 
 def test_get_patient_by_id(client):
     create_response = client.post(
         "/patients",
         json={
-            "name": "John Doe",
-            "email": "john@example.com",
+            "name": "Kush",
+            "email": "kush@example.com",
             "phone": "9876543210",
         },
     )
 
     patient_id = create_response.json()["id"]
 
-    response = client.get(
-        f"/patients/{patient_id}"
-    )
+    response = client.get(f"/patients/{patient_id}")
 
     assert response.status_code == 200
 
     data = response.json()
 
     assert data["id"] == patient_id
-    assert data["name"] == "John Doe"
+    assert data["name"] == "Kush"
 
 
 def test_get_missing_patient(client):
@@ -71,8 +69,8 @@ def test_get_missing_patient(client):
 
 def test_duplicate_patient_email(client):
     patient = {
-        "name": "John Doe",
-        "email": "john@example.com",
+        "name": "Kush",
+        "email": "kush@example.com",
         "phone": "9876543210",
     }
 
@@ -89,7 +87,4 @@ def test_duplicate_patient_email(client):
     )
 
     assert second_response.status_code == 409
-    assert (
-        second_response.json()["detail"]
-        == "Patient with this email already exists"
-    )
+    assert second_response.json()["detail"] == "Patient with this email already exists"

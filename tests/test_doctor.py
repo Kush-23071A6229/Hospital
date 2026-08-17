@@ -46,9 +46,7 @@ def test_get_doctor_by_id(client):
 
     doctor_id = create_response.json()["id"]
 
-    response = client.get(
-        f"/doctors/{doctor_id}"
-    )
+    response = client.get(f"/doctors/{doctor_id}")
 
     assert response.status_code == 200
 

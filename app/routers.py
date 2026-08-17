@@ -18,6 +18,7 @@ router = APIRouter()
 
 # Patients
 
+
 @router.get("/patients", response_model=list[PatientResponse])
 def get_patients(db: Session = Depends(get_db)):
     return db.query(Patient).all()
@@ -32,9 +33,7 @@ def create_patient(
     patient_data: PatientCreate,
     db: Session = Depends(get_db),
 ):
-    if db.query(Patient).filter(
-        Patient.email == patient_data.email
-    ).first():
+    if db.query(Patient).filter(Patient.email == patient_data.email).first():
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Patient with this email already exists",
@@ -62,6 +61,7 @@ def get_patient(patient_id: int, db: Session = Depends(get_db)):
 
 
 # Doctors
+
 
 @router.get("/doctors", response_model=list[DoctorResponse])
 def get_doctors(db: Session = Depends(get_db)):
@@ -100,6 +100,7 @@ def get_doctor(doctor_id: int, db: Session = Depends(get_db)):
 
 # Appointments
 
+
 @router.get("/appointments", response_model=list[AppointmentResponse])
 def get_appointments(db: Session = Depends(get_db)):
     return db.query(Appointment).all()
@@ -126,13 +127,17 @@ def create_appointment(
             detail="Doctor not found",
         )
 
-    overlap = db.query(Appointment).filter(
-        and_(
-            Appointment.doctor_id == appointment_data.doctor_id,
-            Appointment.appointment_start < appointment_data.appointment_end,
-            Appointment.appointment_end > appointment_data.appointment_start,
+    overlap = (
+        db.query(Appointment)
+        .filter(
+            and_(
+                Appointment.doctor_id == appointment_data.doctor_id,
+                Appointment.appointment_start < appointment_data.appointment_end,
+                Appointment.appointment_end > appointment_data.appointment_start,
+            )
         )
-    ).first()
+        .first()
+    )
 
     if overlap:
         raise HTTPException(
